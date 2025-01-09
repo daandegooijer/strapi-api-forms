@@ -88,21 +88,38 @@ function replaceDynamicVariables(message, submission) {
 }
 
 async function getFiles(submission, provider) {
-	const files = await Promise.all(
-		submission.files.map((file) => {
-			const isAbsolute = /^(https?:\/\/)/.test(file.url);
+	let files;
 
-			if (!isAbsolute) {
-				let attachment = {};
-				attachment['filename'] = file.name;
-				attachment[provider === 'mailgun' ? 'data' : 'path'] = `${strapi.config.get('server.url')}${file.url}`;
+	if (provider === 'mailgun') {
+		files = await Promise.all(
+			submission.files.map((file) => {
+				const isAbsolute = /^(https?:\/\/)/.test(file.url);
 
-				return attachment;
-			}
+				return request.get(isAbsolute ? file.url : strapi.config.get('server.url') + file.url, function (error, response, body) {
+					return {
+						filename: file.name,
+						content: body.toString('base64'),
+					};
+				});
+			})
+		);
+	} else {
+		files = await Promise.all(
+			submission.files.map((file) => {
+				const isAbsolute = /^(https?:\/\/)/.test(file.url);
 
-			return request(`${file.url}`);
-		})
-	);
+				if (!isAbsolute) {
+					let attachment = {};
+					attachment['filename'] = file.name;
+					attachment['path'] = `${strapi.config.get('server.url')}${file.url}`;
+
+					return attachment;
+				}
+
+				return request(`${file.url}`);
+			})
+		);
+	}
 
 	return files;
 }
