@@ -1,5 +1,9 @@
+**Note:** This plugin is only for strapi 4.x, my new plugin is located here:
+https://github.com/daandegooijer/strapi-api-forms-v5
+
 # Strapi Form Generator Plugin
 This is a plugin for [Strapi](https://strapi.io/), a headless CMS, that allows you to generate API forms with multiple input fields and email handling capabilities.
+
 
 ## NEW RELEASE
 As of 26-04-2024 there is a new release (1.2.0) which adds the following:
